@@ -1,0 +1,14 @@
+[package]
+name = "envlayer"
+version = "0.1.0"
+edition = "2021"
+description = "Composable environment variable management with layered overrides for local and CI contexts"
+license = "MIT"
+repository = "https://github.com/example/envlayer"
+
+[dependencies]
+indexmap = "2.2"
+thiserror = "1.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4"
