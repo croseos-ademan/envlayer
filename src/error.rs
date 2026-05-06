@@ -1,34 +1,50 @@
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+/// Central error type for envlayer.
+#[derive(Debug)]
 pub enum EnvLayerError {
-    /// A single required key was not found in any layer.
-    MissingKey(String),
-    /// Multiple required keys were not found in any layer.
-    MissingKeys(Vec<String>),
-    /// A layer with the given name already exists in the registry.
+    /// A required environment variable was not found in any layer.
+    NotFound(String),
+    /// An I/O error occurred while reading a source.
+    Io(std::io::Error),
+    /// Parsing a source file failed.
+    ParseError(String),
+    /// A merge conflict could not be resolved.
+    MergeConflict(String),
+    /// One or more validation rules failed.
+    ValidationFailed(String),
+    /// A layer with the given name was already registered.
     DuplicateLayer(String),
-    /// A generic I/O or parse error when loading a layer from a source.
-    LoadError(String),
 }
 
 impl fmt::Display for EnvLayerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            EnvLayerError::MissingKey(key) => {
-                write!(f, "required environment variable '{}' not found", key)
-            }
-            EnvLayerError::MissingKeys(keys) => {
-                write!(f, "required environment variables not found: {}", keys.join(", "))
-            }
+            EnvLayerError::NotFound(key) => write!(f, "Variable not found: {}", key),
+            EnvLayerError::Io(e) => write!(f, "I/O error: {}", e),
+            EnvLayerError::ParseError(msg) => write!(f, "Parse error: {}", msg),
+            EnvLayerError::MergeConflict(msg) => write!(f, "Merge conflict: {}", msg),
+            EnvLayerError::ValidationFailed(msg) => write!(f, "Validation failed: {}", msg),
             EnvLayerError::DuplicateLayer(name) => {
-                write!(f, "layer '{}' already exists in the registry", name)
-            }
-            EnvLayerError::LoadError(msg) => {
-                write!(f, "failed to load layer: {}", msg)
+                write!(f, "Duplicate layer name: {}", name)
             }
         }
     }
 }
 
-impl std::error::Error for EnvLayerError {}
+impl std::error::Error for EnvLayerError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            EnvLayerError::Io(e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+impl From<std::io::Error> for EnvLayerError {
+    fn from(e: std::io::Error) -> Self {
+        EnvLayerError::Io(e)
+    }
+}
+
+pub type Result<T> = std::result::Result<T, EnvLayerError>;
