@@ -1,5 +1,7 @@
 pub mod audit;
 pub mod audit_reporter;
+pub mod diff;
+pub mod diff_formatter;
 pub mod error;
 pub mod exporter;
 pub mod filter;
@@ -12,3 +14,5 @@ pub mod resolver;
 pub mod snapshot;
 pub mod source;
 pub mod validator;
+pub mod watch_trigger;
+pub mod watcher;
