@@ -51,6 +51,14 @@ impl Filter {
         Ok(result)
     }
 
+    /// Returns `true` if this filter has no include or exclude rules defined.
+    pub fn is_empty(&self) -> bool {
+        self.include_prefixes.is_empty()
+            && self.exclude_prefixes.is_empty()
+            && self.include_keys.is_empty()
+            && self.exclude_keys.is_empty()
+    }
+
     fn is_excluded(&self, key: &str) -> bool {
         if self.exclude_keys.iter().any(|k| k == key) {
             return true;
