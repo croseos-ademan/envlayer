@@ -71,6 +71,18 @@ pub struct SnapshotDiff<'a> {
     pub changed: Vec<&'a str>,
 }
 
+impl<'a> SnapshotDiff<'a> {
+    /// Returns true if there are no differences between the two snapshots.
+    pub fn is_empty(&self) -> bool {
+        self.added.is_empty() && self.removed.is_empty() && self.changed.is_empty()
+    }
+
+    /// Returns the total number of differences (added + removed + changed).
+    pub fn total_changes(&self) -> usize {
+        self.added.len() + self.removed.len() + self.changed.len()
+    }
+}
+
 /// Manages a collection of named snapshots.
 #[derive(Debug, Default)]
 pub struct SnapshotStore {
@@ -103,10 +115,5 @@ impl SnapshotStore {
             .ok_or_else(|| EnvLayerError::NotFound(label.to_string()))?;
         self.snapshots.remove(pos);
         Ok(())
-    }
-
-    /// Total number of stored snapshots.
-    pub fn count(&self) -> usize {
-        self.snapshots.len()
     }
 }
