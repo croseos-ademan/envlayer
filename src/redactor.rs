@@ -30,6 +30,11 @@ impl Redactor {
         self.sensitive_keys.insert(key.into().to_uppercase());
     }
 
+    /// Removes a previously added sensitive key. Returns `true` if the key was present.
+    pub fn remove_key(&mut self, key: &str) -> bool {
+        self.sensitive_keys.remove(&key.to_uppercase())
+    }
+
     pub fn is_sensitive(&self, key: &str) -> bool {
         let upper = key.to_uppercase();
         self.sensitive_keys.iter().any(|s| upper.contains(s.as_str()))
