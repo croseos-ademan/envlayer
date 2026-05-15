@@ -13,6 +13,9 @@ pub enum CachePolicy {
 
 impl CachePolicy {
     /// Convert the policy to an optional TTL suitable for `EnvCache::insert`.
+    ///
+    /// Returns `None` for both `NoCache` (caching disabled) and `Forever`
+    /// (no expiry). Returns `Some(duration)` for `Ttl` variants.
     pub fn to_ttl(&self) -> Option<Duration> {
         match self {
             CachePolicy::NoCache => None,
@@ -24,6 +27,20 @@ impl CachePolicy {
     /// Returns true when the policy allows caching at all.
     pub fn should_cache(&self) -> bool {
         !matches!(self, CachePolicy::NoCache)
+    }
+
+    /// Returns true if this policy has a finite expiry (i.e. is a `Ttl` variant).
+    pub fn is_expiring(&self) -> bool {
+        matches!(self, CachePolicy::Ttl(_))
+    }
+
+    /// Returns the TTL duration if this policy is `Ttl`, otherwise `None`.
+    pub fn duration(&self) -> Option<Duration> {
+        if let CachePolicy::Ttl(d) = self {
+            Some(*d)
+        } else {
+            None
+        }
     }
 }
 
