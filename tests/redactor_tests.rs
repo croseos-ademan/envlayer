@@ -63,3 +63,24 @@ fn test_non_sensitive_key_unchanged() {
     assert!(!r.is_sensitive("DATABASE_HOST"));
     assert_eq!(r.redact("DATABASE_HOST", "localhost"), "localhost");
 }
+
+#[test]
+fn test_redact_empty_value() {
+    // Sensitive keys with empty values should still be redacted
+    let r = Redactor::with_defaults();
+    assert_eq!(r.redact("DB_PASSWORD", ""), "[REDACTED]");
+}
+
+#[test]
+fn test_redact_map_preserves_all_keys() {
+    // Ensure redact_map returns an entry for every key in the input map
+    let r = Redactor::with_defaults();
+    let mut vars = HashMap::new();
+    vars.insert("SECRET_KEY".to_string(), "s3cr3t".to_string());
+    vars.insert("LOG_LEVEL".to_string(), "info".to_string());
+
+    let redacted = r.redact_map(&vars);
+    assert_eq!(redacted.len(), vars.len());
+    assert_eq!(redacted["SECRET_KEY"], "[REDACTED]");
+    assert_eq!(redacted["LOG_LEVEL"], "info");
+}
